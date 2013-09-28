@@ -1,104 +1,85 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 
-
-public class Pilot : MonoBehaviour {
+public enum State {LeftCircle, RightCircle, Straight};
+	
+public class Pilot2 : MonoBehaviour {
 
 	public VirtualJoystick joystick;
 	private State curState;
 	private float timeInState;
 	
-	public enum State {LeftCircle, RightCircle, Straight}
+	public Dictionary<State,System.Action> updateFunctions = new Dictionary<State,System.Action>();
+	public Dictionary<State,System.Action> enterFunctions = new Dictionary<State,System.Action>();
+	
+	private delegate void updateStateDelegate();
+	
 	
 	// Use this for initialization
 	void Start () {
-		Debug.Log("Any logging?");
+		initializeStateFunctions();
+		sanityCheckStateFunctions();
+		
 		switchState(State.Straight);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		timeInState += Time.deltaTime;
-		
-		switch (curState)
-		{
-			case State.Straight:
-				updateStraight();
-				break;
-			case State.LeftCircle:
-				updateLeftCircle();
-				break;
-			case State.RightCircle:
-				updateRightCircle();
-				break;
-			default:
-				throw new System.InvalidOperationException("Unsupported state.");
-		}
-		
-
-	}
-	
-	void enterLeftCircle() {
-		left();
-	}
-	
-	void enterRightCircle() {
-		right();
-	}
-
-		
-	void updateLeftCircle() {
-		if (timeInState >= 4) {
-			switchState(State.RightCircle);
-			return;
-		}
-		
-	}
-	
-	void updateRightCircle() {
-		if (timeInState >= 4) {
-			switchState(State.Straight);
-			return;
-		}
-		
-	}
-	
-	void updateStraight() {
-		if (timeInState >= 5) {
-			switchState(State.LeftCircle);
-			return;
-		}
-		
-		//left();
-	}
-	
-
-	
-	
-	void enterStraight() {
-		Debug.Log("Entering straight.");
-		horizStraight();
-		//nothing
+		updateFunctions[curState]();
 	}
 			
 	void switchState(State newState) {
 		timeInState = 0;
 		curState = newState;
+		enterFunctions[newState]();
+	}
+	
+	
+	void initializeStateFunctions() {
+		enterFunctions.Add(State.LeftCircle, () => {
+			left();
+		});
 		
-		switch (newState)
-		{
-			case State.Straight:
-				enterStraight();
-				break;
-			case State.LeftCircle:
-				enterLeftCircle();
-				break;
-			case State.RightCircle:
-				enterRightCircle();
-				break;
-			default:
-				throw new System.InvalidOperationException("Unsupported state.");
+		updateFunctions.Add(State.LeftCircle, () => {
+			if (timeInState >= 4) {
+				switchState(State.RightCircle);
+			}
+		});
+		
+		
+		enterFunctions.Add(State.RightCircle, () => {
+			right();
+		});
+		
+		updateFunctions.Add(State.RightCircle, () => {
+			if (timeInState >= 4) {
+				switchState(State.Straight);
+			}
+		});
+		
+		
+		enterFunctions.Add(State.Straight, () => {
+			horizStraight();
+		});
+		
+		updateFunctions.Add(State.Straight, () => {
+			if (timeInState >= 5) {
+				switchState(State.LeftCircle);
+			}
+		});
+	}
+	
+	
+	void sanityCheckStateFunctions() {
+		if (updateFunctions.Keys.count != Enum.GetNames(typeof(State)).Length) {
+			throw new System.InvalidOperationException("Wrong number of state update functions.");
+		}
+		
+		if (enterFunctions.Keys.count != Enum.GetNames(typeof(State)).Length) {
+			throw new System.InvalidOperationException("Wrong number of state enter functions.");
 		}
 	}
 	
