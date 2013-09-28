@@ -3,12 +3,12 @@ bin-debug/
 bin-release/
 Library/
 Temp/
-unity/knave/knave.sln
-unity/knave/knave-csharp.sln
-unity/knave/Assembly-CSharp.csproj
-unity/knave/Assembly-CSharp-vs.csproj
-unity/knave/Assembly-CSharp.pidb
-unity/knave/knave.userprefs
+*.sln
+*.userprefs
+*.csproj
+*.pidb
+*.unityproj
+.DS_Store
 
 # Other files and folders
 .settings/
