@@ -9,18 +9,23 @@ public class Pilot : MonoBehaviour {
 	private State curState;
 	private float timeInState;
 	
-	public enum State {LeftCircle, RightCircle}
+	public enum State {LeftCircle, RightCircle, Straight}
 	
 	// Use this for initialization
 	void Start () {
-		timeInState = 0;
-		curState = State.LeftCircle;
+		Debug.Log("Any logging?");
+		switchState(State.Straight);
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		timeInState += Time.deltaTime;
+		
 		switch (curState)
 		{
+			case State.Straight:
+				updateStraight();
+				break;
 			case State.LeftCircle:
 				updateLeftCircle();
 				break;
@@ -30,24 +35,8 @@ public class Pilot : MonoBehaviour {
 			default:
 				throw new System.InvalidOperationException("Unsupported state.");
 		}
-	}
 		
-	void updateLeftCircle() {
-		if (timeInState >= 5000) {
-			switchState(State.RightCircle);
-			return;
-		}
-		
-		//right();
-	}
-	
-	void updateRightCircle() {
-		if (timeInState >= 5000) {
-			switchState(State.LeftCircle);
-			return;
-		}
-		
-		//left();
+
 	}
 	
 	void enterLeftCircle() {
@@ -57,6 +46,41 @@ public class Pilot : MonoBehaviour {
 	void enterRightCircle() {
 		right();
 	}
+
+		
+	void updateLeftCircle() {
+		if (timeInState >= 4) {
+			switchState(State.RightCircle);
+			return;
+		}
+		
+	}
+	
+	void updateRightCircle() {
+		if (timeInState >= 4) {
+			switchState(State.Straight);
+			return;
+		}
+		
+	}
+	
+	void updateStraight() {
+		if (timeInState >= 5) {
+			switchState(State.LeftCircle);
+			return;
+		}
+		
+		//left();
+	}
+	
+
+	
+	
+	void enterStraight() {
+		Debug.Log("Entering straight.");
+		horizStraight();
+		//nothing
+	}
 			
 	void switchState(State newState) {
 		timeInState = 0;
@@ -64,6 +88,9 @@ public class Pilot : MonoBehaviour {
 		
 		switch (newState)
 		{
+			case State.Straight:
+				enterStraight();
+				break;
 			case State.LeftCircle:
 				enterLeftCircle();
 				break;
