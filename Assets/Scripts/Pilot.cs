@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public enum State {LeftCircle, RightCircle, Straight};
 	
-public class Pilot2 : MonoBehaviour {
+public class Pilot : MonoBehaviour {
 
 	public VirtualJoystick joystick;
 	private State curState;
@@ -74,11 +74,11 @@ public class Pilot2 : MonoBehaviour {
 	
 	
 	void sanityCheckStateFunctions() {
-		if (updateFunctions.Keys.count != Enum.GetNames(typeof(State)).Length) {
+		if (updateFunctions.Keys.Count != System.Enum.GetNames(typeof(State)).Length) {
 			throw new System.InvalidOperationException("Wrong number of state update functions.");
 		}
 		
-		if (enterFunctions.Keys.count != Enum.GetNames(typeof(State)).Length) {
+		if (enterFunctions.Keys.Count != System.Enum.GetNames(typeof(State)).Length) {
 			throw new System.InvalidOperationException("Wrong number of state enter functions.");
 		}
 	}
