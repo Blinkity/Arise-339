@@ -8,11 +8,12 @@ public class CameraController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		offset = airplane.transform.position - transform.position;  
+		//offset = airplane.transform.position - transform.position;  
 	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		transform.position = airplane.transform.position - offset; 
+		//transform.position = airplane.transform.position; 
+		//transform.rotation = airplane.transform.rotation; 
 	}
 }
