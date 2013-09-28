@@ -17,28 +17,28 @@ public class VirtualJoystick : MonoBehaviour {
 	
 	}
 	
-	public float GetAxis (String axisName) {
+	public float GetAxis (string axisName) {
 		if (isKeyboard) {
 			return Input.GetAxis(axisName);
 		}
 		
-		if (axisName == "horizontal") {
+		if (axisName == "Horizontal") {
 			return horizAxis;
-		} else if (axisName = "vertical") {
+		} else if (axisName == "Vertical") {
 			return vertAxis;
 		} else {
 			throw new System.InvalidOperationException("Only supports horizontal and vertical axes.");
 		}
 	}
 	
-	public float SetAxis(String axisName, float val) {
+	public void SetAxis(string axisName, float val) {
 		if (isKeyboard) {
 			throw new System.InvalidOperationException("Cannot set axis for keyboard input.");
 		}
 		
-		if (axisName == "horizontal") {
+		if (axisName == "Horizontal") {
 			horizAxis = val;
-		} else if (axisName = "vertical") {
+		} else if (axisName == "Vertical") {
 			vertAxis = val;
 		} else {
 			throw new System.InvalidOperationException("Only supports horizontal and vertical axes.");
