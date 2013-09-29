@@ -5,7 +5,10 @@ using System.Collections.Generic;
 
 public class QuirkyPlaneMover : MonoBehaviour {
 	public VirtualJoystick virtualJoystick; 
-	public int speed; 
+	public float speed; //20.0F;
+	public float horizontalRotationSpeed;
+	public float verticalRotationSpeed;
+	public float rollRotationSpeed;
 	
 	//quirk
 	public bool delayedResponse; 
@@ -26,6 +29,11 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		//speed = 20.0F;
+		//horizontalRotationSpeed = 90.0F;
+		//verticalRotationSpeed = 60.0F;
+
+		
 		queuedRotations = new Queue<Vector3>(); 
 		queuedTranslations = new Queue<Vector3>(); 
 		queuedTimestamps = new Queue<DateTime>(); 
@@ -33,7 +41,7 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Vector3 rotation = new Vector3(virtualJoystick.GetAxis("Vertical") * 4, virtualJoystick.GetAxis("Horizontal") * 4, 0);
+		Vector3 rotation = new Vector3(virtualJoystick.GetAxis("Vertical") * verticalRotationSpeed, virtualJoystick.GetAxis("Horizontal") * horizontalRotationSpeed, virtualJoystick.GetAxis("Roll") * rollRotationSpeed) * Time.deltaTime;
 		Vector3 translation = new Vector3(0, 0, speed) * Time.deltaTime; 
 		
 		var now = System.DateTime.UtcNow;  

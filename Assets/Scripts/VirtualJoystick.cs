@@ -6,6 +6,7 @@ public class VirtualJoystick : MonoBehaviour {
 	public bool isKeyboard;
 	private float horizAxis;
 	private float vertAxis;
+	private float rollAxis;
 	
 	// Use this for initialization
 	void Start () {
@@ -26,8 +27,10 @@ public class VirtualJoystick : MonoBehaviour {
 			return horizAxis;
 		} else if (axisName == "Vertical") {
 			return vertAxis;
+		} else if (axisName == "Roll") {
+			return rollAxis;
 		} else {
-			throw new System.InvalidOperationException("Only supports horizontal and vertical axes.");
+			throw new System.InvalidOperationException("Only supports horizontal, vertical, and roll axes.");
 		}
 	}
 	
@@ -40,8 +43,10 @@ public class VirtualJoystick : MonoBehaviour {
 			horizAxis = val;
 		} else if (axisName == "Vertical") {
 			vertAxis = val;
+		} else if (axisName == "Roll") {
+			rollAxis = val;
 		} else {
-			throw new System.InvalidOperationException("Only supports horizontal and vertical axes.");
+			throw new System.InvalidOperationException("Only supports horizontal, vertical, and roll axes.");
 		}
 		
 	}
