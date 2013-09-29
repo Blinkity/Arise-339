@@ -1,0 +1,14 @@
+bin/
+bin-debug/
+bin-release/
+Library/
+Temp/
+*.sln
+*.userprefs
+*.csproj
+*.pidb
+*.unityproj
+.DS_Store
+
+# Other files and folders
+.settings/
