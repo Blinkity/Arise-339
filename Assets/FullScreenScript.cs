@@ -5,7 +5,9 @@ public class FullScreenScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Screen.fullScreen = !Screen.fullScreen;
+		//Screen.fullScreen = true;
+		//Screen.showCursor = false;
+		Screen.lockCursor = true;
 	}
 	
 	// Update is called once per frame
