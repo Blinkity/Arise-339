@@ -4,9 +4,9 @@ using System.Collections;
 public class VirtualJoystick : MonoBehaviour {
 
 	public bool isKeyboard;
-	private float horizAxis;
-	private float vertAxis;
-	private float rollAxis;
+	public float horizAxis;
+	public float vertAxis;
+	public float rollAxis;
 	
 	// Use this for initialization
 	void Start () {

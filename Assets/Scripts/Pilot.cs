@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, FigureEight5, FigureEight6, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome};
+public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, FigureEight5, FigureEight6, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome, GoToBase1, GoToBase2, GoToBase3,GoToBase4,GoToBase5};
 
 
 
@@ -14,12 +14,18 @@ public class Pilot : MonoBehaviour {
 	public State curState;
 	public float distance; 
 	private State stateAfterReturnHome; 
+	public double vertDegrees;
+	public static Vector3 baseLocation = new Vector3(150,0,150);
+	
+	public static float brokenTimeToLand = 2;
 	
 	private List<State> initialStates;
 	private List<State> initialStateDistribution;
 	
 	public float timeInState;
+	public float timeExisting;
 	public QuirkyPlaneMover plane;
+	public double baseDist;
 	
 	public Dictionary<State,System.Action> updateFunctions = new Dictionary<State,System.Action>();
 	public Dictionary<State,System.Action> enterFunctions = new Dictionary<State,System.Action>();
@@ -32,6 +38,7 @@ public class Pilot : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		timeExisting = 0;
 		initializeStateFunctions();
 		sanityCheckStateFunctions();
 		
@@ -41,9 +48,10 @@ public class Pilot : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		timeInState += Time.deltaTime;
+		timeExisting += Time.deltaTime;
 		updateFunctions[curState]();
 		distance = Vector3.Distance(plane.transform.position, girlCamera.transform.position); 
-		
+		baseDist = Vector3.Distance(plane.transform.position, baseLocation); 
 		Quaternion planeRotation = plane.transform.rotation;
 		planeEulers = planeRotation.eulerAngles;
 		
@@ -51,13 +59,21 @@ public class Pilot : MonoBehaviour {
 			
 	void switchState(State newState) {
 		//if too far from origin, and entering an initial state.
-		if (newState!= State.ReturnHome && curState!= State.ReturnHome && distance > 150f && initialStates.Contains(newState)) {
+		if (curState != State.GoToBase1 && curState != State.GoToBase2 && curState != State.GoToBase3 && curState != State.GoToBase4 && curState != State.GoToBase5
+			&& newState!= State.ReturnHome && curState!= State.ReturnHome && distance > 150f && initialStates.Contains(newState)) {
 			stateAfterReturnHome = newState; 
 			//turn toward home 
 			switchState(State.ReturnHome); 
 			return; 
 		}
 		
+		if (curState != State.GoToBase1 && curState != State.GoToBase2 && curState != State.GoToBase3 && curState != State.GoToBase4 && curState != State.GoToBase5
+			&& newState != State.GoToBase1
+			&& timeExisting > brokenTimeToLand
+			&& initialStates.Contains(newState)) {
+			switchState(State.GoToBase1);
+			return;
+		}
 		
 		//Debug.Log("Switch state." + newState);
 		timeInState = 0;
@@ -92,7 +108,7 @@ public class Pilot : MonoBehaviour {
 		initialStates.Add(State.Climb1);
 		initialStates.Add(State.BarrelRoll);
 		
-		
+		/*
 		initialStateDistribution = new List<State>();
 		initialStateDistribution.Add(State.LeftCircle);
 		initialStateDistribution.Add(State.RightCircle);
@@ -100,6 +116,10 @@ public class Pilot : MonoBehaviour {
 		initialStateDistribution.Add(State.Straight);
 		initialStateDistribution.Add(State.Straight);
 		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Straight);
 		initialStateDistribution.Add(State.FigureEight1);
 		initialStateDistribution.Add(State.FigureEight1);
 		initialStateDistribution.Add(State.Dive1);
@@ -108,6 +128,13 @@ public class Pilot : MonoBehaviour {
 		initialStateDistribution.Add(State.Climb1);
 		initialStateDistribution.Add(State.BarrelRoll);
 		initialStateDistribution.Add(State.BarrelRoll);
+		initialStateDistribution.Add(State.BarrelRoll);
+		*/
+		//ignore above
+		initialStateDistribution = new List<State>();
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Dive1);
+		initialStateDistribution.Add(State.Climb1);
 		
 		//left circle
 		enterFunctions.Add(State.LeftCircle, () => {
@@ -328,6 +355,88 @@ public class Pilot : MonoBehaviour {
 			}
 			
 		});
+		
+		
+		//Go to Base
+		enterFunctions.Add(State.GoToBase1, () => {
+			Debug.Log("Entered base1");
+			resetControls();
+			origKnownToBeDelayedResponse = plane.knownToBeDelayedResponse;
+			origSurpriseDelayedResponse = plane.surpriseDelayedResponse;
+			
+			plane.knownToBeDelayedResponse = false;
+			plane.surpriseDelayedResponse = false; 
+			
+			left();
+		});
+		
+		updateFunctions.Add(State.GoToBase1, () => {
+			Vector3 adjustedBasePos = new Vector3(baseLocation.x, 
+				plane.transform.position.y, baseLocation.z); 
+			
+			Vector3 relativePos = adjustedBasePos - plane.transform.position;
+			Quaternion relativeRotation = Quaternion.LookRotation(relativePos);
+			relativeEulers = relativeRotation.eulerAngles;
+			
+			double degreesDiff = (relativeEulers.y - planeEulers.y);  
+			if (degreesDiff > -5 && degreesDiff < 5) {
+				switchState (State.GoToBase2);
+			}
+		});
+		
+		enterFunctions.Add(State.GoToBase2, () => {
+			resetControls();
+		});
+		
+		updateFunctions.Add(State.GoToBase2, () => {	
+			if (timeInState > 0.5) {			
+				switchState (State.GoToBase3);
+			}
+		});
+		
+		enterFunctions.Add(State.GoToBase3, () => {
+			Debug.Log("Entered base3");
+			resetControls();			
+			down();
+			
+			double vertRadians = System.Math.Asin(plane.transform.position.y/baseDist);
+			vertDegrees = vertRadians * 180.0/System.Math.PI;
+		});
+		
+		updateFunctions.Add(State.GoToBase3, () => {
+			if (timeInState > vertDegrees / plane.verticalRotationSpeed) {
+				switchState(State.GoToBase4);
+			}
+		
+			//if (timeInState >= 30F/plane.verticalRotationSpeed) {
+			//	switchState(State.GoToBase4);
+			//}
+		});
+		
+		
+		enterFunctions.Add(State.GoToBase4, () => {
+			resetControls();			
+		});
+		
+		updateFunctions.Add(State.GoToBase4, () => {			
+			if (plane.transform.position.y < 3.5) {
+				switchState(State.GoToBase5);
+			}
+		});
+		
+		enterFunctions.Add(State.GoToBase5, () => {
+			resetControls();
+			up();
+		});
+		
+		updateFunctions.Add(State.GoToBase5, () => {	
+			if (timeInState >= vertDegrees / plane.verticalRotationSpeed) {
+				resetControls();
+			}
+		});
+		
+		
+
 	}
 	
 	bool origKnownToBeDelayedResponse;
