@@ -23,9 +23,9 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	public bool surpriseJerker; 
 		
 	//jerky properties
-	float jerkyFactor = 5f; 
+	float jerkyFactor = 10f; 
 	int minSecondsBetweenJerks = 3;
-	int jerkDuration = 2; 
+	int jerkDuration = 1; 
 	bool isCurrentlyJerking = false; 
 	double secondsSinceLastJerk; 
 	
@@ -37,7 +37,7 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	
 	//dropper properties
 	long minSecondsBetweenDrops = 5; 
-	int dropHeight = -30;
+	int dropHeight = -15;
 	double dropDuration = 1; 
 	public bool isCurrentlyDropping = false; 
 	double secondsSinceLastDrop; 
@@ -55,7 +55,7 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	}
 	
 	
-	private bool weightedCoinFlip(float headsProbability) {
+	public static bool weightedCoinFlip(float headsProbability) {
 		return (UnityEngine.Random.Range(0f, 1f) < headsProbability); 
 	}
 	
@@ -64,25 +64,25 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		//speed = 20.0F;
 		//horizontalRotationSpeed = 90.0F;
 		//verticalRotationSpeed = 60.0F;
-
+		
 		queuedRotations = new Queue<Vector3>(); 
 		queuedTranslations = new Queue<Vector3>(); 
 		queuedTimestamps = new Queue<DateTime>(); 
 		
-		//knownToBeDelayedResponse = weightedCoinFlip(0.5f);
-		//knownToBeJerker = weightedCoinFlip(0.5f);
-		//knownToBeDropper = weightedCoinFlip(0.5f);
+		knownToBeDelayedResponse = weightedCoinFlip(0.25f);
+		knownToBeJerker = weightedCoinFlip(0.25f);
+		knownToBeDropper = weightedCoinFlip(0.25f);
 		
 		//with 80% chance
-		if (weightedCoinFlip(0.8f)) {
+		if (weightedCoinFlip(0.25f)) {
 			//pick a surprise quirk
 			float x = UnityEngine.Random.Range(0f,1f); 
 			if (x < 0.33) {
-				//surpriseDelayedResponse = true;
+				surpriseDelayedResponse = true;
 			}else if (x < 0.66) {
-				//surpriseJerker = true;
+				surpriseJerker = true;
 			}else {
-				//surpriseDropper = true; 
+				surpriseDropper = true; 
 			}
 		}
 		
@@ -151,6 +151,15 @@ public class QuirkyPlaneMover : MonoBehaviour {
 				}
 			}
 		}
+	}
+	
+	public bool hasAnySuprisingQuirks() {
+		return 
+			(knownToBeJerker == false && surpriseJerker == true) ||
+				(knownToBeDropper == false && surpriseDropper == true) ||
+				(knownToBeDelayedResponse == false && surpriseDelayedResponse == true); 
+		
+		
 	}
 	
 }

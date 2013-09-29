@@ -17,7 +17,7 @@ public class Pilot : MonoBehaviour {
 	public double vertDegrees;
 	public static Vector3 baseLocation = new Vector3(150,0,150);
 	
-	public static float brokenTimeToLand = 2;
+	public static float brokenTimeToLand = 45f;
 	
 	private List<State> initialStates;
 	private List<State> initialStateDistribution;
@@ -70,7 +70,8 @@ public class Pilot : MonoBehaviour {
 		if (curState != State.GoToBase1 && curState != State.GoToBase2 && curState != State.GoToBase3 && curState != State.GoToBase4 && curState != State.GoToBase5
 			&& newState != State.GoToBase1
 			&& timeExisting > brokenTimeToLand
-			&& initialStates.Contains(newState)) {
+			&& initialStates.Contains(newState)
+			&& plane.hasAnySuprisingQuirks()) {
 			switchState(State.GoToBase1);
 			return;
 		}
@@ -108,7 +109,7 @@ public class Pilot : MonoBehaviour {
 		initialStates.Add(State.Climb1);
 		initialStates.Add(State.BarrelRoll);
 		
-		/*
+		
 		initialStateDistribution = new List<State>();
 		initialStateDistribution.Add(State.LeftCircle);
 		initialStateDistribution.Add(State.RightCircle);
@@ -129,12 +130,13 @@ public class Pilot : MonoBehaviour {
 		initialStateDistribution.Add(State.BarrelRoll);
 		initialStateDistribution.Add(State.BarrelRoll);
 		initialStateDistribution.Add(State.BarrelRoll);
-		*/
-		//ignore above
+		
+		/*
 		initialStateDistribution = new List<State>();
 		initialStateDistribution.Add(State.Straight);
 		initialStateDistribution.Add(State.Dive1);
 		initialStateDistribution.Add(State.Climb1);
+		*/
 		
 		//left circle
 		enterFunctions.Add(State.LeftCircle, () => {

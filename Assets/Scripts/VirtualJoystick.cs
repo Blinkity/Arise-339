@@ -20,6 +20,7 @@ public class VirtualJoystick : MonoBehaviour {
 	
 	public float GetAxis (string axisName) {
 		if (isKeyboard) {
+			throw new System.InvalidOperationException("NO keyboard allowed.");
 			return Input.GetAxis(axisName);
 		}
 		
