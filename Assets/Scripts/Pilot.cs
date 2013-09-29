@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome};
-	
+public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, FigureEight5, FigureEight6, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome};
+
+
+
 public class Pilot : MonoBehaviour {
 	public Camera girlCamera; 
 	
@@ -12,6 +14,9 @@ public class Pilot : MonoBehaviour {
 	public State curState;
 	public float distance; 
 	private State stateAfterReturnHome; 
+	
+	private List<State> initialStates;
+	private List<State> initialStateDistribution;
 	
 	public float timeInState;
 	public QuirkyPlaneMover plane;
@@ -45,8 +50,8 @@ public class Pilot : MonoBehaviour {
 	}
 			
 	void switchState(State newState) {
-		//if too far from origin
-		if (newState!= State.ReturnHome && curState!= State.ReturnHome && distance > 150f) {
+		//if too far from origin, and entering an initial state.
+		if (newState!= State.ReturnHome && curState!= State.ReturnHome && distance > 150f && initialStates.Contains(newState)) {
 			stateAfterReturnHome = newState; 
 			//turn toward home 
 			switchState(State.ReturnHome); 
@@ -63,28 +68,46 @@ public class Pilot : MonoBehaviour {
 	
 	void randomManeuver() {
 		//Array values = Enum.GetValues(typeof(State));
-		List<State> states = new List<State>();
-		states.add(LeftCircle);
-		states.add(RightCircle);
-		states.add(Straight);
-		states.add(FigureEight1);
-		states.add(Dive1);
-		states.add(Climb1);
-		states.add(BarrelRoll);
+
 		
-		State randomState = states[UnityEngine.Random.Next(states.length)];
+
+		State randomState = initialStateDistribution[UnityEngine.Random.Range(0,initialStateDistribution.Count)];
 		while (   (plane.knownToBeDropper && (randomState == State.Dive1 || randomState == State.BarrelRoll))
 			   || (plane.knownToBeDelayedResponse && (randomState == State.Dive1 || randomState == State.LeftCircle || randomState == State.RightCircle))
-			   || (plane.knownToBeJerker && (randomState == State.FigureEight || randomState == State.Dive))) 
+			   || (plane.knownToBeJerker && (randomState == State.FigureEight1 || randomState == State.Dive1))) 
 		{
-			randomState = states[UnityEngine.Random.Next(states.length)];			
+			randomState = initialStateDistribution[UnityEngine.Random.Range(0,initialStateDistribution.Count)];			
 		}
 		
 		switchState(randomState);
 	}
 	
 	void initializeStateFunctions() {
+		initialStates = new List<State>();
+		initialStates.Add(State.LeftCircle);
+		initialStates.Add(State.RightCircle);
+		initialStates.Add(State.Straight);
+		initialStates.Add(State.FigureEight1);
+		initialStates.Add(State.Dive1);
+		initialStates.Add(State.Climb1);
+		initialStates.Add(State.BarrelRoll);
 		
+		
+		initialStateDistribution = new List<State>();
+		initialStateDistribution.Add(State.LeftCircle);
+		initialStateDistribution.Add(State.RightCircle);
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.Straight);
+		initialStateDistribution.Add(State.FigureEight1);
+		initialStateDistribution.Add(State.FigureEight1);
+		initialStateDistribution.Add(State.Dive1);
+		initialStateDistribution.Add(State.Dive1);
+		initialStateDistribution.Add(State.Climb1);
+		initialStateDistribution.Add(State.Climb1);
+		initialStateDistribution.Add(State.BarrelRoll);
+		initialStateDistribution.Add(State.BarrelRoll);
 		
 		//left circle
 		enterFunctions.Add(State.LeftCircle, () => {
@@ -94,7 +117,8 @@ public class Pilot : MonoBehaviour {
 		
 		updateFunctions.Add(State.LeftCircle, () => {
 			if (timeInState >= 4) {
-				switchState(State.RightCircle);
+				randomManeuver();
+				//switchState(State.RightCircle);
 			}
 		});
 		
@@ -107,7 +131,8 @@ public class Pilot : MonoBehaviour {
 		
 		updateFunctions.Add(State.RightCircle, () => {
 			if (timeInState >= 4) {
-				switchState(State.Straight);
+				randomManeuver();
+				//switchState(State.Straight);
 			}
 		});
 		
@@ -119,50 +144,76 @@ public class Pilot : MonoBehaviour {
 		
 		updateFunctions.Add(State.Straight, () => {
 			if (timeInState >= 2.5) {
-				switchState(State.BarrelRoll);
+				randomManeuver();
+				//switchState(State.BarrelRoll);
 			}
 		});
 		
 		
 		//figure eight
+
+		
 		enterFunctions.Add(State.FigureEight1, () => {
 			resetControls();
 		});
 		
 		updateFunctions.Add(State.FigureEight1, () => {
-			if (timeInState >= 1) {
+			if (timeInState >= 0.25) {
 				switchState(State.FigureEight2);
 			}
 		});
 		
+		
 		enterFunctions.Add(State.FigureEight2, () => {
-			left();
+			right();
 		});
 		
 		updateFunctions.Add(State.FigureEight2, () => {
-			if (timeInState >= 235F/plane.horizontalRotationSpeed) {
+			if (timeInState >= 30F/plane.horizontalRotationSpeed) {
 				switchState(State.FigureEight3);
 			}
 		});
 		
 		enterFunctions.Add(State.FigureEight3, () => {
-			horizStraight();
-			vertStraight();
+			left();
 		});
 		
+		
 		updateFunctions.Add(State.FigureEight3, () => {
-			if (timeInState >= 1) {
+			if (timeInState >= 270F/plane.horizontalRotationSpeed) {
 				switchState(State.FigureEight4);
 			}
 		});
 		
 		enterFunctions.Add(State.FigureEight4, () => {
-			right();
+			resetControls();
 		});
 		
 		updateFunctions.Add(State.FigureEight4, () => {
-			if (timeInState >= 235F/plane.horizontalRotationSpeed) {
-				switchState(State.Straight);
+			if (timeInState >= 0.25) {
+				switchState(State.FigureEight5);
+			}
+		});
+		
+		enterFunctions.Add(State.FigureEight5, () => {
+			right();
+		});
+		
+		updateFunctions.Add(State.FigureEight5, () => {
+			if (timeInState >= 270F/plane.horizontalRotationSpeed) {
+				switchState(State.FigureEight6);
+
+			}
+		});
+		
+		enterFunctions.Add(State.FigureEight6, () => {
+			resetControls();
+		});
+		
+		updateFunctions.Add(State.FigureEight6, () => {
+			if (timeInState >= 0.25) {
+				randomManeuver();
+				//switchState(State.Straight);
 			}
 		});
 		
@@ -174,7 +225,7 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.Dive1, () => {
-			if (timeInState >= 45F/plane.verticalRotationSpeed) {
+			if (timeInState >= 30F/plane.verticalRotationSpeed) {
 				switchState(State.Dive2);
 			}
 		});
@@ -184,7 +235,7 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.Dive2, () => {
-			if (timeInState >= 3) {
+			if (timeInState >= 1.5) {
 				switchState(State.Dive3);
 			}
 		});
@@ -194,8 +245,9 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.Dive3, () => {
-			if (timeInState >= 45F/plane.horizontalRotationSpeed) {
-				switchState(State.Straight);
+			if (timeInState >= 30F/plane.horizontalRotationSpeed) {
+				randomManeuver();
+				//switchState(State.Straight);
 			}
 		});
 		
@@ -207,7 +259,7 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.Climb1, () => {
-			if (timeInState >= 45F/plane.verticalRotationSpeed) {
+			if (timeInState >= 30F/plane.verticalRotationSpeed) {
 				switchState(State.Climb2);
 			}
 		});
@@ -217,7 +269,7 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.Climb2, () => {
-			if (timeInState >= 3) {
+			if (timeInState >= 2) {
 				switchState(State.Climb3);
 			}
 		});
@@ -227,8 +279,9 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.Climb3, () => {
-			if (timeInState >= 45F/plane.horizontalRotationSpeed) {
-				switchState(State.Straight);
+			if (timeInState >= 30F/plane.horizontalRotationSpeed) {
+				randomManeuver();
+				//switchState(State.Straight);
 			}
 		});
 		
@@ -241,7 +294,8 @@ public class Pilot : MonoBehaviour {
 		
 		updateFunctions.Add(State.BarrelRoll, () => {
 			if (timeInState >= 360F/plane.rollRotationSpeed) {
-				switchState(State.Straight);
+				randomManeuver();
+				//switchState(State.Straight);
 			}
 		});
 		
