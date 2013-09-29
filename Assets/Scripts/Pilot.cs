@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll};
+public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome};
 	
 public class Pilot : MonoBehaviour {
 
@@ -39,6 +39,28 @@ public class Pilot : MonoBehaviour {
 		enterFunctions[newState]();
 	}
 	
+	
+	void randomManeuver() {
+		//Array values = Enum.GetValues(typeof(State));
+		List<State> states = new List<State>();
+		states.add(LeftCircle);
+		states.add(RightCircle);
+		states.add(Straight);
+		states.add(FigureEight1);
+		states.add(Dive1);
+		states.add(Climb1);
+		states.add(BarrelRoll);
+		
+		State randomState = states[UnityEngine.Random.Next(states.length)];
+		while (   (plane.knownToBeDropper && (randomState == State.Dive1 || randomState == State.BarrelRoll))
+			   || (plane.knownToBeDelayedResponse && (randomState == State.Dive1 || randomState == State.LeftCircle || randomState == State.RightCircle))
+			   || (plane.knownToBeJerker && (randomState == State.FigureEight || randomState == State.Dive))) 
+		{
+			randomState = states[UnityEngine.Random.Next(states.length)];			
+		}
+		
+		switchState(randomState);
+	}
 	
 	void initializeStateFunctions() {
 		
