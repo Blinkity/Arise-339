@@ -5,7 +5,8 @@ using System.Collections.Generic;
 
 public class QuirkyPlaneMover : MonoBehaviour {
 	public VirtualJoystick virtualJoystick; 
-
+	
+	
 	public float speed; //20.0F;
 	public float horizontalRotationSpeed;
 	public float verticalRotationSpeed;
@@ -29,7 +30,7 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	double secondsSinceLastJerk; 
 	
 	//delayedResponse properties
-	int delaySeconds = 2; 
+	public int delaySeconds = 2; 
 	Queue<Vector3> queuedRotations; 
 	Queue<Vector3> queuedTranslations; 
 	Queue<DateTime> queuedTimestamps; 
@@ -38,21 +39,25 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	long minSecondsBetweenDrops = 5; 
 	int dropHeight = -30;
 	double dropDuration = 1; 
-	bool isCurrentlyDropping = false; 
+	public bool isCurrentlyDropping = false; 
 	double secondsSinceLastDrop; 
 	
-	private bool isDropper() {
+	public bool isDropper() {
 		return knownToBeDropper || surpriseDropper; 
 	}
 	
-	private bool isDelayedResponse() {
+	public bool isDelayedResponse() {
 		return knownToBeDelayedResponse || surpriseDelayedResponse; 
 	}
 	
-	private bool isJerker() {
+	public bool isJerker() {
 		return knownToBeJerker || surpriseJerker; 
 	}
 	
+	
+	private bool weightedCoinFlip(float headsProbability) {
+		return (UnityEngine.Random.Range(0f, 1f) < headsProbability); 
+	}
 	
 	// Use this for initialization
 	void Start () {
@@ -60,15 +65,26 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		//horizontalRotationSpeed = 90.0F;
 		//verticalRotationSpeed = 60.0F;
 
-		
 		queuedRotations = new Queue<Vector3>(); 
 		queuedTranslations = new Queue<Vector3>(); 
 		queuedTimestamps = new Queue<DateTime>(); 
 		
-		surpriseDelayedResponse = (UnityEngine.Random.Range(0,100) % 2 == 0);
-		surpriseJerker = (UnityEngine.Random.Range(0,100) % 2 == 0);
-		surpriseDropper = (UnityEngine.Random.Range(0,100) % 2 == 0);
+		//knownToBeDelayedResponse = weightedCoinFlip(0.5f);
+		//knownToBeJerker = weightedCoinFlip(0.5f);
+		//knownToBeDropper = weightedCoinFlip(0.5f);
 		
+		//with 80% chance
+		if (weightedCoinFlip(0.8f)) {
+			//pick a surprise quirk
+			float x = UnityEngine.Random.Range(0f,1f); 
+			if (x < 0.33) {
+				//surpriseDelayedResponse = true;
+			}else if (x < 0.66) {
+				//surpriseJerker = true;
+			}else {
+				//surpriseDropper = true; 
+			}
+		}
 		
 	}
 	
@@ -127,7 +143,9 @@ public class QuirkyPlaneMover : MonoBehaviour {
 			}
 			if (isCurrentlyDropping == true){
 				if (secondsSinceLastDrop < dropDuration) {
-					transform.Translate (new Vector3(0, dropHeight, 0) * Time.deltaTime);
+					//transform.position.Set(transform.position.x, transform.position.y - (dropHeight * Time.deltaTime), transform.position.z);  
+					transform.Translate (new Vector3(0, dropHeight, 0) * Time.deltaTime, Space.World); 
+					
 				}else {
 					isCurrentlyDropping = false; 
 				}

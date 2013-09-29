@@ -6,10 +6,14 @@ using System.Collections.Generic;
 public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome};
 	
 public class Pilot : MonoBehaviour {
-
+	public Camera girlCamera; 
+	
 	public VirtualJoystick joystick;
-	private State curState;
-	private float timeInState;
+	public State curState;
+	public float distance; 
+	private State stateAfterReturnHome; 
+	
+	public float timeInState;
 	public QuirkyPlaneMover plane;
 	
 	public Dictionary<State,System.Action> updateFunctions = new Dictionary<State,System.Action>();
@@ -17,6 +21,9 @@ public class Pilot : MonoBehaviour {
 	
 	private delegate void updateStateDelegate();
 	
+	public string debugg; 
+	public Vector3 relativeEulers;
+	public Vector3 planeEulers;
 	
 	// Use this for initialization
 	void Start () {
@@ -30,9 +37,23 @@ public class Pilot : MonoBehaviour {
 	void Update () {
 		timeInState += Time.deltaTime;
 		updateFunctions[curState]();
+		distance = Vector3.Distance(plane.transform.position, girlCamera.transform.position); 
+		
+		Quaternion planeRotation = plane.transform.rotation;
+		planeEulers = planeRotation.eulerAngles;
+		
 	}
 			
 	void switchState(State newState) {
+		//if too far from origin
+		if (newState!= State.ReturnHome && curState!= State.ReturnHome && distance > 150f) {
+			stateAfterReturnHome = newState; 
+			//turn toward home 
+			switchState(State.ReturnHome); 
+			return; 
+		}
+		
+		
 		//Debug.Log("Switch state." + newState);
 		timeInState = 0;
 		curState = newState;
@@ -223,7 +244,40 @@ public class Pilot : MonoBehaviour {
 				switchState(State.Straight);
 			}
 		});
+		
+		
+		//return home
+		enterFunctions.Add(State.ReturnHome, () => {
+			resetControls();
+			origKnownToBeDelayedResponse = plane.knownToBeDelayedResponse;
+			origSurpriseDelayedResponse = plane.surpriseDelayedResponse;
+			
+			plane.knownToBeDelayedResponse = false;
+			plane.surpriseDelayedResponse = false; 
+			
+			right();
+		});
+		
+		updateFunctions.Add(State.ReturnHome, () => {
+			Vector3 adjustedCameraPos = new Vector3(girlCamera.transform.position.x, 
+				plane.transform.position.y, girlCamera.transform.position.z); 
+			
+			Vector3 relativePos = adjustedCameraPos - plane.transform.position;
+			Quaternion relativeRotation = Quaternion.LookRotation(relativePos);
+			relativeEulers = relativeRotation.eulerAngles;
+			
+			double degreesDiff = (relativeEulers.y - planeEulers.y);  
+			if (degreesDiff > -20 && degreesDiff < 20) {
+				plane.knownToBeDelayedResponse = origKnownToBeDelayedResponse;
+				plane.surpriseDelayedResponse = origSurpriseDelayedResponse; 
+				switchState (stateAfterReturnHome);
+			}
+			
+		});
 	}
+	
+	bool origKnownToBeDelayedResponse;
+	bool origSurpriseDelayedResponse; 
 	
 	void resetControls() {
 		vertStraight();
