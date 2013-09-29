@@ -19,14 +19,14 @@ public class MouseLook : MonoBehaviour {
 
 	public enum RotationAxes { MouseXAndY = 0, MouseX = 1, MouseY = 2 }
 	public RotationAxes axes = RotationAxes.MouseXAndY;
-	public float sensitivityX = 15F;
-	public float sensitivityY = 15F;
+	public float sensitivityX = 0F;
+	public float sensitivityY = 0F;
 
-	public float minimumX = -360F;
-	public float maximumX = 360F;
+	public float minimumX = -10F;
+	public float maximumX = 10F;
 
-	public float minimumY = -60F;
-	public float maximumY = 60F;
+	public float minimumY = -10F;
+	public float maximumY = 10F;
 
 	float rotationX = 0F;
 	float rotationY = 0F;
@@ -38,8 +38,8 @@ public class MouseLook : MonoBehaviour {
 		if (axes == RotationAxes.MouseXAndY)
 		{
 			// Read the mouse input axis
-			rotationX += Input.GetAxis("Mouse X") * sensitivityX;
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
+			rotationX += Input.GetAxis("Horizontal") * sensitivityX;
+			rotationY += Input.GetAxis("Vertical") * sensitivityY;
 
 			rotationX = ClampAngle (rotationX, minimumX, maximumX);
 			rotationY = ClampAngle (rotationY, minimumY, maximumY);
