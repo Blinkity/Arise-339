@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, FigureEight5, FigureEight6, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome, GoToBase1, GoToBase2, GoToBase3,GoToBase4,GoToBase5, Landed};
+public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, FigureEight5, FigureEight6, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome, GoToBase1, GoToBase2, GoToBase3, GoToBase4, GoToBase5, Landed};
 
 
 public class Pilot : MonoBehaviour {
@@ -415,7 +415,7 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.GoToBase4, () => {			
-			if (plane.transform.position.y < 3.5) {
+			if (plane.transform.position.y < SharedVariables.heightAtWhichToRotateToLandingMode) {
 				switchState(State.GoToBase5);
 			}
 		});

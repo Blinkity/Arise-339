@@ -4,7 +4,10 @@ using System.Collections;
 public class SharedVariables : MonoBehaviour {
 	
 	public static Vector3 baseLocation = new Vector3(0,0,300);
-	public static float heightAtWhichToLanded = 50f;
+	public static float heightAtWhichToLanded = 0f;
+	
+	public static float planeScale = 6f; 
+	public static float heightAtWhichToRotateToLandingMode = planeScale + 3f; 
 	
 	public static float maxDistanceFromHome = 200f; 
 	

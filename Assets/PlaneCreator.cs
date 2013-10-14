@@ -22,6 +22,10 @@ public class PlaneCreator : MonoBehaviour {
 		
 		if (secondsSinceLastGeneration >= planeGenerationTime){
 			GameObject airplane = (GameObject) Instantiate(exampleOfQuirkyAirplane);
+			airplane.transform.localScale = new Vector3(SharedVariables.planeScale, SharedVariables.planeScale,
+				SharedVariables.planeScale); 
+			
+			
 			Vector3 startingPos; 
 			
 			int startingDistance = 150; 
