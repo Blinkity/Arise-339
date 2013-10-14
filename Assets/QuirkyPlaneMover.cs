@@ -22,9 +22,9 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	public bool surpriseJerker; 
 		
 	//jerky properties
-	float jerkyFactor = 10f; 
-	int minSecondsBetweenJerks = 3;
-	int jerkDuration = 1; 
+	float jerkyFactor = 2f; 
+	int minSecondsBetweenJerks = 5;
+	float jerkDuration = 0.75f; 
 	bool isCurrentlyJerking = false; 
 	double secondsSinceLastJerk; 
 	
@@ -91,16 +91,16 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	void Update () {
 		float speedForThisUpdate = speed; 
 		
-		if (isJerker() == true) {
+		if (isJerker()) {
 			secondsSinceLastJerk += Time.deltaTime; 
-			if(isCurrentlyJerking == false) {
+			if(!isCurrentlyJerking) {
 				if (secondsSinceLastJerk > minSecondsBetweenJerks) {
 					isCurrentlyJerking = true; 
 					secondsSinceLastJerk = 0;
 				}
 			}
 			
-			if (isCurrentlyJerking == true){
+			if (isCurrentlyJerking){
 				if (secondsSinceLastJerk < jerkDuration) {
 					speedForThisUpdate *= jerkyFactor; 
 				} else {
@@ -111,7 +111,7 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		
 
 		Vector3 rotation = new Vector3(virtualJoystick.GetAxis("Vertical") * verticalRotationSpeed, virtualJoystick.GetAxis("Horizontal") * horizontalRotationSpeed, virtualJoystick.GetAxis("Roll") * rollRotationSpeed) * Time.deltaTime;
-		Vector3 translation = new Vector3(0, 0, speed) * Time.deltaTime; 
+		Vector3 translation = new Vector3(0, 0, speedForThisUpdate) * Time.deltaTime; 
 		
 		var now = System.DateTime.UtcNow;  
 		
@@ -156,9 +156,18 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		return 
 			(knownToBeJerker == false && surpriseJerker == true) ||
 				(knownToBeDropper == false && surpriseDropper == true) ||
-				(knownToBeDelayedResponse == false && surpriseDelayedResponse == true); 
-		
-		
+				(knownToBeDelayedResponse == false && surpriseDelayedResponse == true); 	
+	}
+	
+	
+	//This is used when the plane starts heading home, so that quirks don't fuck it up.
+	public void loseQuirks() {
+		knownToBeJerker = false;	
+		knownToBeDropper = false;
+		knownToBeDelayedResponse = false;
+		surpriseJerker = false;	
+		surpriseDropper = false;
+		surpriseDelayedResponse = false;
 	}
 	
 }
