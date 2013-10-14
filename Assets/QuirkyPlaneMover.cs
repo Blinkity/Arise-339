@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class QuirkyPlaneMover : MonoBehaviour {
 	public VirtualJoystick virtualJoystick; 
 	
-	
 	public float speed; //20.0F;
 	public float horizontalRotationSpeed;
 	public float verticalRotationSpeed;

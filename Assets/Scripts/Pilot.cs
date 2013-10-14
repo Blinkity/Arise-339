@@ -3,8 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, FigureEight5, FigureEight6, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome, GoToBase1, GoToBase2, GoToBase3,GoToBase4,GoToBase5};
-
+public enum State {LeftCircle, RightCircle, Straight, FigureEight1, FigureEight2, FigureEight3, FigureEight4, FigureEight5, FigureEight6, Dive1, Dive2, Dive3, Climb1, Climb2, Climb3, BarrelRoll, ReturnHome, GoToBase1, GoToBase2, GoToBase3,GoToBase4,GoToBase5, Landed};
 
 
 public class Pilot : MonoBehaviour {
@@ -15,9 +14,8 @@ public class Pilot : MonoBehaviour {
 	public float distance; 
 	private State stateAfterReturnHome; 
 	public double vertDegrees;
-	public static Vector3 baseLocation = new Vector3(150,0,150);
 	
-	public static float brokenTimeToLand = 45f;
+	public static float brokenTimeToLand = 5f;
 	
 	private List<State> initialStates;
 	private List<State> initialStateDistribution;
@@ -32,7 +30,6 @@ public class Pilot : MonoBehaviour {
 	
 	private delegate void updateStateDelegate();
 	
-	public string debugg; 
 	public Vector3 relativeEulers;
 	public Vector3 planeEulers;
 	
@@ -51,7 +48,7 @@ public class Pilot : MonoBehaviour {
 		timeExisting += Time.deltaTime;
 		updateFunctions[curState]();
 		distance = Vector3.Distance(plane.transform.position, girlCamera.transform.position); 
-		baseDist = Vector3.Distance(plane.transform.position, baseLocation); 
+		baseDist = Vector3.Distance(plane.transform.position, SharedVariables.landingLocation()); 
 		Quaternion planeRotation = plane.transform.rotation;
 		planeEulers = planeRotation.eulerAngles;
 		
@@ -60,7 +57,7 @@ public class Pilot : MonoBehaviour {
 	void switchState(State newState) {
 		//if too far from origin, and entering an initial state.
 		if (curState != State.GoToBase1 && curState != State.GoToBase2 && curState != State.GoToBase3 && curState != State.GoToBase4 && curState != State.GoToBase5
-			&& newState!= State.ReturnHome && curState!= State.ReturnHome && distance > 150f && initialStates.Contains(newState)) {
+			&& newState!= State.ReturnHome && curState!= State.ReturnHome && distance > SharedVariables.maxDistanceFromHome && initialStates.Contains(newState)) {
 			stateAfterReturnHome = newState; 
 			//turn toward home 
 			switchState(State.ReturnHome); 
@@ -70,8 +67,8 @@ public class Pilot : MonoBehaviour {
 		if (curState != State.GoToBase1 && curState != State.GoToBase2 && curState != State.GoToBase3 && curState != State.GoToBase4 && curState != State.GoToBase5
 			&& newState != State.GoToBase1
 			&& timeExisting > brokenTimeToLand
-			&& initialStates.Contains(newState)
-			&& plane.hasAnySuprisingQuirks()) {
+			&& initialStates.Contains(newState)) {
+			//&& plane.hasAnySuprisingQuirks()) {
 			switchState(State.GoToBase1);
 			return;
 		}
@@ -85,9 +82,6 @@ public class Pilot : MonoBehaviour {
 	
 	void randomManeuver() {
 		//Array values = Enum.GetValues(typeof(State));
-
-		
-
 		State randomState = initialStateDistribution[UnityEngine.Random.Range(0,initialStateDistribution.Count)];
 		while (   (plane.knownToBeDropper && (randomState == State.Dive1 || randomState == State.BarrelRoll))
 			   || (plane.knownToBeDelayedResponse && (randomState == State.Dive1 || randomState == State.LeftCircle || randomState == State.RightCircle))
@@ -373,8 +367,8 @@ public class Pilot : MonoBehaviour {
 		});
 		
 		updateFunctions.Add(State.GoToBase1, () => {
-			Vector3 adjustedBasePos = new Vector3(baseLocation.x, 
-				plane.transform.position.y, baseLocation.z); 
+			Vector3 adjustedBasePos = new Vector3(SharedVariables.landingLocation().x, 
+				plane.transform.position.y, SharedVariables.landingLocation().z); 
 			
 			Vector3 relativePos = adjustedBasePos - plane.transform.position;
 			Quaternion relativeRotation = Quaternion.LookRotation(relativePos);
@@ -434,9 +428,23 @@ public class Pilot : MonoBehaviour {
 		updateFunctions.Add(State.GoToBase5, () => {	
 			if (timeInState >= vertDegrees / plane.verticalRotationSpeed) {
 				resetControls();
+				plane.speed = plane.speed * (1 - Time.deltaTime); 
+				
+				if (plane.speed < 0.01){
+					switchState(State.Landed); 
+				}
 			}
 		});
 		
+		enterFunctions.Add(State.Landed, () => {
+			resetControls();
+			plane.speed = 0; 
+			plane.audio.mute = true; 
+		});
+		
+		updateFunctions.Add(State.Landed, () => {	
+			//do nothing 
+		});
 		
 
 	}

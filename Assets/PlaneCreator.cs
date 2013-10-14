@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlaneCreator : MonoBehaviour {
 	
-	public double planeGenerationTime = 30; 
+	private double planeGenerationTime = 10; 
 	public double secondsSinceLastGeneration; 
 	
 	
