@@ -10,7 +10,7 @@ public class Mover : MonoBehaviour {
 	public static Vector3 baseLocation = new Vector3(150,0,150);
 	
 	public MouseLook mouseLook; 
-	public FPSWalkerEnhanced fpsWalker; 
+	//public FPSWalkerEnhanced fpsWalker; 
 	
 	public GameObject camera; 
 	
@@ -20,7 +20,7 @@ public class Mover : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		fpsWalker.enabled = false; 
+		//fpsWalker.enabled = false; 
 		
 		mouseLook.maximumX = 55;
 		mouseLook.minimumX = -55;
@@ -52,7 +52,7 @@ public class Mover : MonoBehaviour {
 			
 		}else if (currentState == PersonState.RunningToBase) { 
 			mouseLook.axes = MouseLook.RotationAxes.MouseY;
-			fpsWalker.enabled = true; 
+			//fpsWalker.enabled = true; 
 			
 			Vector3 directionToRun = (baseLocation - transform.position); 
 //			

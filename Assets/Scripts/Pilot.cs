@@ -356,6 +356,7 @@ public class Pilot : MonoBehaviour {
 		//Go to Base
 		enterFunctions.Add(State.GoToBase1, () => {
 			Debug.Log("Entered base1");
+			plane.loseQuirks(); //landing is hard enough as it is, so let's remove quirks.
 			resetControls();
 			origKnownToBeDelayedResponse = plane.knownToBeDelayedResponse;
 			origSurpriseDelayedResponse = plane.surpriseDelayedResponse;
