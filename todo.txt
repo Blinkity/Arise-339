@@ -1,0 +1,7 @@
+- sometimes planes get in barrel roll loops and never get out 
+
+- droppers + landing doesnt work -- DONE. Alex turning off quirks as soon as plane gets in go-home-mode. 
+
+- add twerking quirk!!
+
+ 
