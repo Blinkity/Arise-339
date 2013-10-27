@@ -65,6 +65,9 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		
+		this.renderer.material.SetColor("_Color", Color.red);  
+		
 		//speed = 20.0F;
 		//horizontalRotationSpeed = 90.0F;
 		//verticalRotationSpeed = 60.0F;

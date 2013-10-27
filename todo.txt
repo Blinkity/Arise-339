@@ -1,5 +1,5 @@
 - change starting position of planes 
-	- check that that part of code actually works
+	- DONE
 
 - sometimes planes get in barrel roll loops and never get out 
 	- haven't seen this in a while
@@ -10,15 +10,15 @@
 - add twerking quirk!!
 	- not for now. let's keep it minimal. can we get away with just 2 quirks? 
 
-
 - planes shouldnt divebomb to land. perhaps disallow going-to-base when too close to base. 
-	- not necessary. 
-
+	- NEED TO DO. 
 
 - find creative commons music for game. 
 	- get music here: http://incompetech.com/music/royalty-free/index.html?feels%5B%5D=Calming&feels%5B%5D=Mysterious&feels%5B%5D=Mystical&feels%5B%5D=Relaxed&feels%5B%5D=Uplifting 
 	- credit musician
 
 - add score + check for whether you made it there before the plane
-	- added. fix font size + position
+	- DONE
+
+- credit plane model creator
  

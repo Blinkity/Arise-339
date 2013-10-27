@@ -57,8 +57,6 @@ public class PlaneCreator : MonoBehaviour {
 			} else {
 				numFlying++; 
 			}
-			
-			
 		}
 		gameStateText.text = "landed: " + numLanded + " -- flying: " + numFlying; 
 		
@@ -102,10 +100,13 @@ public class PlaneCreator : MonoBehaviour {
 			startingPos = new Vector3(startingPos.x + SharedVariables.baseLocation.x,
 									  startingPos.y + SharedVariables.baseLocation.y,
 									  startingPos.z + SharedVariables.baseLocation.z); 
-			
-			
+			 
 			airplane.SetActive(true); 
+			
+			//airplane.renderer.material.color = Color.red;
 			airplane.transform.Translate(startingPos - airplane.transform.position); 
+			
+			
 			planes.Add(airplane); 
 			secondsSinceLastGeneration = 0; 
 		}
