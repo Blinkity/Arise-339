@@ -21,4 +21,7 @@
 	- DONE
 
 - credit plane model creator
+
+- planes should be diff colors to distiniguish them. 
+	- changing renderer.material.color clones the material thus breaking the game.. 
  
