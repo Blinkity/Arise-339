@@ -27,9 +27,12 @@ public class PlaneCreator : MonoBehaviour {
 	}
 	
 	public int a = 0; public int b = 0; 
-			
+	
+	private bool winLossDetermined = false; 
+	
 	// Update is called once per frame
 	void Update () {
+	
 		secondsSinceLastGeneration += Time.deltaTime; 
 		
 		if (origMover.currentState == OrigMover.PersonState.WatchingAirplanes) {
@@ -55,13 +58,14 @@ public class PlaneCreator : MonoBehaviour {
 		}
 		gameStateText.text = "landed: " + numLanded + " -- flying: " + numFlying; 
 		
-		if (numLanded > 0) {
+		if (numLanded > 0 && !winLossDetermined) {
 			if (origMover.currentState == OrigMover.PersonState.AtBase) {
-				winLoseText.text = "Phew! You made it before the plane landed. Your score is" + 
-					((int) secondsSinceStart); 
+				winLoseText.text = "Phew! You made it before the plane landed. \n Your score is " + 
+					((int) secondsSinceStart) + "."; 
 			} else {
-				winLoseText.text = "The plane landed, and you weren't there. YOU'RE FIRED!"; 
+				winLoseText.text = "The plane landed, and you weren't there. \n YOU'RE FIRED!"; 
 			}
+			winLossDetermined = true; 
 		}
 		
 		if (numFullyLanded > 0){
