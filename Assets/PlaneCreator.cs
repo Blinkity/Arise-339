@@ -19,6 +19,10 @@ public class PlaneCreator : MonoBehaviour {
 	private double planeGenerationTime = 10; 
 	public double secondsSinceLastGeneration; 
 	
+	
+	public int planeStartDistance = 1000;
+	public int planeStartingHeight = 400;
+	
 	public GameObject exampleOfQuirkyAirplane; 
 	// Use this for initialization
 	void Start () {
@@ -79,18 +83,17 @@ public class PlaneCreator : MonoBehaviour {
 				SharedVariables.planeScale); 
 			
 			Vector3 startingPos; 
-			int startingDistance = 300; 
 			//random point on some border edge
 			if (QuirkyPlaneMover.weightedCoinFlip(0.5f)){
-				a = startingDistance;
+				a = planeStartDistance;
 			}else {
-				a = -1 * startingDistance; 
+				a = -1 * planeStartDistance; 
 			}
-			b = UnityEngine.Random.Range(-1 * startingDistance, startingDistance); 
+			b = UnityEngine.Random.Range(-1 * planeStartDistance, planeStartDistance); 
 			if (QuirkyPlaneMover.weightedCoinFlip(0.5f)){
-				startingPos = new Vector3(a, 150, b);
+				startingPos = new Vector3(a, planeStartingHeight, b);
 			} else {
-				startingPos = new Vector3(b, 150, a);
+				startingPos = new Vector3(b, planeStartingHeight, a);
 			}
 			startingPos = new Vector3(startingPos.x + SharedVariables.baseLocation.x,
 									  startingPos.y + SharedVariables.baseLocation.y,
