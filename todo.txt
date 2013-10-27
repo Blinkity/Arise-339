@@ -1,3 +1,6 @@
+- change starting position of planes 
+	- check that that part of code actually works
+
 - sometimes planes get in barrel roll loops and never get out 
 
 - droppers + landing doesnt work -- DONE. Alex turning off quirks as soon as plane gets in go-home-mode. 
@@ -8,4 +11,5 @@
 
 - find creative commons music for game. OR ASK SUFJAN??? 
 
+- add score + check for whether you made it there before the plane
  

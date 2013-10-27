@@ -431,7 +431,7 @@ public class Pilot : MonoBehaviour {
 				resetControls();
 				plane.speed = plane.speed * (1 - Time.deltaTime); 
 				
-				if (plane.speed < 0.01){
+				if (plane.speed < 0.02){
 					switchState(State.Landed); 
 				}
 			}
