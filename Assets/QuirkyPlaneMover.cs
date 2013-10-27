@@ -6,10 +6,10 @@ using System.Collections.Generic;
 public class QuirkyPlaneMover : MonoBehaviour {
 	public VirtualJoystick virtualJoystick; 
 	
-	public float speed; //20.0F;
-	public float horizontalRotationSpeed;
-	public float verticalRotationSpeed;
-	public float rollRotationSpeed;
+	public float speed = 100f; //20.0F;
+	public float horizontalRotationSpeed = 90f;
+	public float verticalRotationSpeed = 90f;
+	public float rollRotationSpeed = 120f;
 	
 	//known quirks
 	public bool knownToBeDelayedResponse; 
@@ -20,7 +20,12 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	public bool surpriseDelayedResponse; 
 	public bool surpriseDropper;
 	public bool surpriseJerker; 
-		
+	
+	//Values below must sum to 0, should check for this obviously.
+	public float surpriseDelayedResponseProbGivenProblem = 0.0f;
+	public float surpriseDropperProbGivenProblem = 0.5f;
+	public float surpriseJerkerProbGivenProblem = 0.5f;
+	
 	//jerky properties
 	float jerkyFactor = 2f; 
 	int minSecondsBetweenJerks = 5;
@@ -68,7 +73,10 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		queuedTranslations = new Queue<Vector3>(); 
 		queuedTimestamps = new Queue<DateTime>(); 
 		
-		knownToBeDelayedResponse = weightedCoinFlip(0.25f);
+		//knownToBeDelayedResponse = weightedCoinFlip(0.25f);
+		//this is too hard to see, so we're not using delayed response for now
+		knownToBeDelayedResponse = false;
+		
 		knownToBeJerker = weightedCoinFlip(0.25f);
 		knownToBeDropper = weightedCoinFlip(0.25f);
 		
@@ -76,11 +84,11 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		if (weightedCoinFlip(0.25f)) {
 			//pick a surprise quirk
 			float x = UnityEngine.Random.Range(0f,1f); 
-			if (x < 0.33) {
+			if (x < surpriseDelayedResponseProbGivenProblem) {
 				surpriseDelayedResponse = true;
-			}else if (x < 0.66) {
+			} else if (x < surpriseDelayedResponseProbGivenProblem + surpriseJerkerProbGivenProblem) {
 				surpriseJerker = true;
-			}else {
+			} else {
 				surpriseDropper = true; 
 			}
 		}

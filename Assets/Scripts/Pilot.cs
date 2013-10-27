@@ -15,7 +15,7 @@ public class Pilot : MonoBehaviour {
 	private State stateAfterReturnHome; 
 	public double vertDegrees;
 	
-	public static float brokenTimeToLand = 5f;
+	public static float brokenTimeToLand = 30f;
 	
 	private List<State> initialStates;
 	private List<State> initialStateDistribution;
@@ -65,10 +65,10 @@ public class Pilot : MonoBehaviour {
 		}
 		
 		if (curState != State.GoToBase1 && curState != State.GoToBase2 && curState != State.GoToBase3 && curState != State.GoToBase4 && curState != State.GoToBase5
-			&& newState != State.GoToBase1
-			&& timeExisting > brokenTimeToLand
-			&& initialStates.Contains(newState)) {
-			//&& plane.hasAnySuprisingQuirks()) {
+				&& newState != State.GoToBase1
+				&& timeExisting > brokenTimeToLand
+				&& initialStates.Contains(newState)
+		  		&& plane.hasAnySuprisingQuirks()) {
 			switchState(State.GoToBase1);
 			return;
 		}
@@ -81,8 +81,8 @@ public class Pilot : MonoBehaviour {
 	
 	
 	void randomManeuver() {
-		//Array values = Enum.GetValues(typeof(State));
 		State randomState = initialStateDistribution[UnityEngine.Random.Range(0,initialStateDistribution.Count)];
+		//keep picking a new random state while a 'disallowed' state is chosen
 		while (   (plane.knownToBeDropper && (randomState == State.Dive1 || randomState == State.BarrelRoll))
 			   || (plane.knownToBeDelayedResponse && (randomState == State.Dive1 || randomState == State.LeftCircle || randomState == State.RightCircle))
 			   || (plane.knownToBeJerker && (randomState == State.FigureEight1 || randomState == State.Dive1))) 
