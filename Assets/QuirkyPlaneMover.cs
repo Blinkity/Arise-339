@@ -5,11 +5,24 @@ using System.Collections.Generic;
 
 public class QuirkyPlaneMover : MonoBehaviour {
 	public VirtualJoystick virtualJoystick; 
-	
-	public float speed = 100f; //20.0F;
-	public float horizontalRotationSpeed = 90f;
-	public float verticalRotationSpeed = 90f;
-	public float rollRotationSpeed = 120f;
+
+	public void InitializeStats() {
+		speed = SharedVariables.speed; //20.0F;
+		horizontalRotationSpeed = SharedVariables.horizontalRotationSpeed;
+		verticalRotationSpeed = SharedVariables.verticalRotationSpeed;
+		rollRotationSpeed = SharedVariables.rollRotationSpeed;
+		jerkyFactor = SharedVariables.jerkyFactor; 
+		minSecondsBetweenJerks = SharedVariables.minSecondsBetweenJerks;
+		jerkDuration = SharedVariables.jerkDuration; 
+		minSecondsBetweenDrops = SharedVariables.minSecondsBetweenDrops;
+		dropHeight = SharedVariables.dropHeight;
+		dropDuration = SharedVariables.dropDuration; 
+	}
+
+	public float speed; //20.0F;
+	public float horizontalRotationSpeed;
+	public float verticalRotationSpeed;
+	public float rollRotationSpeed;
 	
 	//known quirks
 	public bool knownToBeDelayedResponse; 
@@ -20,29 +33,27 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	public bool surpriseDelayedResponse; 
 	public bool surpriseDropper;
 	public bool surpriseJerker; 
-	
-	//Values below must sum to 0, should check for this obviously.
-	public float surpriseDelayedResponseProbGivenProblem = 0.0f;
-	public float surpriseDropperProbGivenProblem = 0.5f;
-	public float surpriseJerkerProbGivenProblem = 0.5f;
-	
+
+
+	static int nextPlaneColor = 0;
+
 	//jerky properties
-	float jerkyFactor = 2f; 
-	int minSecondsBetweenJerks = 5;
-	float jerkDuration = 0.75f; 
+	public float jerkyFactor; 
+	public int minSecondsBetweenJerks;
+	public float jerkDuration; 
 	bool isCurrentlyJerking = false; 
 	double secondsSinceLastJerk; 
 	
 	//delayedResponse properties
-	public int delaySeconds = 2; 
+	public int delaySeconds = SharedVariables.delaySeconds; 
 	Queue<Vector3> queuedRotations; 
 	Queue<Vector3> queuedTranslations; 
 	Queue<DateTime> queuedTimestamps; 
 	
 	//dropper properties
-	long minSecondsBetweenDrops = 5; 
-	int dropHeight = -15;
-	double dropDuration = 1; 
+	long minSecondsBetweenDrops; 
+	int dropHeight;
+	double dropDuration; 
 	public bool isCurrentlyDropping = false; 
 	double secondsSinceLastDrop; 
 	
@@ -65,8 +76,8 @@ public class QuirkyPlaneMover : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		
-		this.renderer.material.SetColor("_Color", Color.red);  
+		InitializeStats();
+		SetColor ();
 		
 		//speed = 20.0F;
 		//horizontalRotationSpeed = 90.0F;
@@ -80,16 +91,16 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		//this is too hard to see, so we're not using delayed response for now
 		knownToBeDelayedResponse = false;
 		
-		knownToBeJerker = weightedCoinFlip(0.25f);
-		knownToBeDropper = weightedCoinFlip(0.25f);
+		knownToBeJerker = weightedCoinFlip(SharedVariables.knownToBeJerkerProb);
+		knownToBeDropper = weightedCoinFlip(SharedVariables.knownToBeDropperProb);
 		
 		//with 80% chance
-		if (weightedCoinFlip(0.25f)) {
+		if (weightedCoinFlip(SharedVariables.surpriseQuirkProb)) {
 			//pick a surprise quirk
 			float x = UnityEngine.Random.Range(0f,1f); 
-			if (x < surpriseDelayedResponseProbGivenProblem) {
+			if (x < SharedVariables.surpriseDelayedResponseProbGivenProblem) {
 				surpriseDelayedResponse = true;
-			} else if (x < surpriseDelayedResponseProbGivenProblem + surpriseJerkerProbGivenProblem) {
+			} else if (x < SharedVariables.surpriseDelayedResponseProbGivenProblem + SharedVariables.surpriseJerkerProbGivenProblem) {
 				surpriseJerker = true;
 			} else {
 				surpriseDropper = true; 
@@ -161,6 +172,11 @@ public class QuirkyPlaneMover : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	void SetColor() {
+		(this.GetComponentInChildren<MeshRenderer>()).material.SetColor("_Color", SharedVariables.allColors[nextPlaneColor % SharedVariables.allColors.Count]);  
+		nextPlaneColor += 1;
 	}
 	
 	public bool hasAnySuprisingQuirks() {

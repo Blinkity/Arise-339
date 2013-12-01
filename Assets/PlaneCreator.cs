@@ -13,20 +13,16 @@ public class PlaneCreator : MonoBehaviour {
 	private OrigMover origMover; 
 	
 	public double score = 1000; 
-	public double scoreFactor = 1.1; 
 	public double secondsSinceStart = 0; 
 	
-	private double planeGenerationTime = 10; 
+
 	public double secondsSinceLastGeneration; 
 	
-	
-	public int planeStartDistance = 1000;
-	public int planeStartingHeight = 400;
-	
+
 	public GameObject exampleOfQuirkyAirplane; 
 	// Use this for initialization
 	void Start () {
-		secondsSinceLastGeneration = planeGenerationTime; 
+		secondsSinceLastGeneration = SharedVariables.planeGenerationTime; 
 		origMover = (OrigMover) girlCamera.GetComponent(typeof(OrigMover)); 
 	}
 	
@@ -78,7 +74,7 @@ public class PlaneCreator : MonoBehaviour {
 		
 		
 		
-		if (secondsSinceLastGeneration >= planeGenerationTime){
+		if (secondsSinceLastGeneration >= SharedVariables.planeGenerationTime){
 			//create airplane
 			GameObject airplane = (GameObject) Instantiate(exampleOfQuirkyAirplane);
 			airplane.transform.localScale = new Vector3(SharedVariables.planeScale, SharedVariables.planeScale,
@@ -87,15 +83,15 @@ public class PlaneCreator : MonoBehaviour {
 			Vector3 startingPos; 
 			//random point on some border edge
 			if (QuirkyPlaneMover.weightedCoinFlip(0.5f)){
-				a = planeStartDistance;
+				a = SharedVariables.planeStartDistance;
 			}else {
-				a = -1 * planeStartDistance; 
+				a = -1 * SharedVariables.planeStartDistance; 
 			}
-			b = UnityEngine.Random.Range(-1 * planeStartDistance, planeStartDistance); 
+			b = UnityEngine.Random.Range(-1 * SharedVariables.planeStartDistance, SharedVariables.planeStartDistance); 
 			if (QuirkyPlaneMover.weightedCoinFlip(0.5f)){
-				startingPos = new Vector3(a, planeStartingHeight, b);
+				startingPos = new Vector3(a, SharedVariables.planeStartingHeight, b);
 			} else {
-				startingPos = new Vector3(b, planeStartingHeight, a);
+				startingPos = new Vector3(b, SharedVariables.planeStartingHeight, a);
 			}
 			startingPos = new Vector3(startingPos.x + SharedVariables.baseLocation.x,
 									  startingPos.y + SharedVariables.baseLocation.y,
