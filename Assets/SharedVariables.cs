@@ -32,7 +32,7 @@ public class SharedVariables : MonoBehaviour {
 	public static float verticalRotationSpeed = 90f;
 	public static float rollRotationSpeed = 120f;
 
-	public static float surpriseQuirkProb = 1.0f;//0.25f;
+	public static float surpriseQuirkProb = 0.35f;//0.25f;
 	//Values below must sum to 0, should check for this obviously.
 	public static float surpriseDelayedResponseProbGivenProblem = 0.0f;
 	public static float surpriseDropperProbGivenProblem = 0.5f;
@@ -62,15 +62,15 @@ public class SharedVariables : MonoBehaviour {
 	
 	//dropper properties
 	public static long minSecondsBetweenDrops = 5; 
-	public static int dropHeight = -15;
+	public static int dropHeight = -70;
 	public static double dropDuration = 1; 
 
 
 	public static float knownToBeJerkerProb = 0.25f;
 	public static float knownToBeDropperProb = 0.25f;
 
-	public static float brokenTimeToLand = 5f;
-	//public static float brokenTimeToLand = 30f;
+	//public static float brokenTimeToLand = 5f;
+	public static float brokenTimeToLand = 30f;
 
 
 
