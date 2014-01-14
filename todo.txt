@@ -24,5 +24,12 @@
 
 - planes should be diff colors to distiniguish them. 
 	- changing renderer.material.color clones the material thus breaking the game.. 
+	- DONE
  
 - Optimize to handle a dozen planes or so.
+
+
+- Go straight when waiting to be far enough to go to base
+
+- Planes land inside the ground
+	- DONE

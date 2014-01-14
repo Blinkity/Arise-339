@@ -12,10 +12,12 @@ public class Pilot : MonoBehaviour {
 	public VirtualJoystick joystick;
 	public State curState;
 	public float distance; 
+	public float baseDistanceAsTheBirdFlies; 
 	private State stateAfterReturnHome; 
 	public double vertDegrees;
-	
-	public static float brokenTimeToLand = 30f;
+	public Vector3 curPosition;
+	public Vector3 prevPosition;
+	public float verticalSpeed;
 	
 	private List<State> initialStates;
 	private List<State> initialStateDistribution;
@@ -24,6 +26,7 @@ public class Pilot : MonoBehaviour {
 	public float timeExisting;
 	public QuirkyPlaneMover plane;
 	public double baseDist;
+	public double groundDist;
 	
 	public Dictionary<State,System.Action> updateFunctions = new Dictionary<State,System.Action>();
 	public Dictionary<State,System.Action> enterFunctions = new Dictionary<State,System.Action>();
@@ -32,6 +35,10 @@ public class Pilot : MonoBehaviour {
 	
 	public Vector3 relativeEulers;
 	public Vector3 planeEulers;
+
+	public float timeToBase;
+	public float timeToGround;
+	public float rotationTimeToBase;
 	
 	// Use this for initialization
 	void Start () {
@@ -46,12 +53,21 @@ public class Pilot : MonoBehaviour {
 	void Update () {
 		timeInState += Time.deltaTime;
 		timeExisting += Time.deltaTime;
+
 		updateFunctions[curState]();
+
+		prevPosition = curPosition;
+		curPosition = plane.transform.position;
+		verticalSpeed = (curPosition.y - prevPosition.y )  / Time.deltaTime;
+
 		distance = Vector3.Distance(plane.transform.position, girlCamera.transform.position); 
 		baseDist = Vector3.Distance(plane.transform.position, SharedVariables.landingLocation()); 
+		//groundDist = Vector3.Distance(plane.transform.position, new Vector3(, 0, ); 
 		Quaternion planeRotation = plane.transform.rotation;
 		planeEulers = planeRotation.eulerAngles;
-		
+		baseDistanceAsTheBirdFlies = Vector3.Distance (plane.transform.position, 
+		                                           new Vector3((SharedVariables.landingLocation()).x, plane.transform.position.y, (SharedVariables.landingLocation()).z)); 
+
 	}
 			
 	void switchState(State newState) {
@@ -66,9 +82,10 @@ public class Pilot : MonoBehaviour {
 		
 		if (curState != State.GoToBase1 && curState != State.GoToBase2 && curState != State.GoToBase3 && curState != State.GoToBase4 && curState != State.GoToBase5
 				&& newState != State.GoToBase1
-				&& timeExisting > brokenTimeToLand
+				&& timeExisting > SharedVariables.brokenTimeToLand
 				&& initialStates.Contains(newState)
-		  		&& plane.hasAnySuprisingQuirks()) {
+		  		&& plane.hasAnySuprisingQuirks()
+		    	&& baseDistanceAsTheBirdFlies > SharedVariables.minGoToBaseDistance) {
 			switchState(State.GoToBase1);
 			return;
 		}
@@ -78,21 +95,24 @@ public class Pilot : MonoBehaviour {
 		curState = newState;
 		enterFunctions[newState]();
 	}
-	
-	
+
 	void randomManeuver() {
 		State randomState = initialStateDistribution[UnityEngine.Random.Range(0,initialStateDistribution.Count)];
 		//keep picking a new random state while a 'disallowed' state is chosen
-		while (   (plane.knownToBeDropper && (randomState == State.Dive1 || randomState == State.BarrelRoll))
-			   || (plane.knownToBeDelayedResponse && (randomState == State.Dive1 || randomState == State.LeftCircle || randomState == State.RightCircle))
-			   || (plane.knownToBeJerker && (randomState == State.FigureEight1 || randomState == State.Dive1))) 
+		while (isStateDisallowed(randomState)) 
 		{
 			randomState = initialStateDistribution[UnityEngine.Random.Range(0,initialStateDistribution.Count)];			
 		}
 		
 		switchState(randomState);
 	}
-	
+
+	bool isStateDisallowed(State state) {
+		return (plane.knownToBeDropper && (state == State.Dive1 || state == State.BarrelRoll))
+			|| (plane.knownToBeDelayedResponse && (state == State.Dive1 || state == State.LeftCircle || state == State.RightCircle))
+			|| (plane.knownToBeJerker && (state == State.FigureEight1 || state == State.Dive1));
+	}
+
 	void initializeStateFunctions() {
 		initialStates = new List<State>();
 		initialStates.Add(State.LeftCircle);
@@ -415,9 +435,23 @@ public class Pilot : MonoBehaviour {
 			resetControls();			
 		});
 		
-		updateFunctions.Add(State.GoToBase4, () => {			
-			if (plane.transform.position.y < SharedVariables.heightAtWhichToRotateToLandingMode) {
+		updateFunctions.Add(State.GoToBase4, () => {
+			//check whether to start turning up
+			/*
+			timeToBase = (float) baseDist / plane.speed;
+			rotationTimeToBase = (float) vertDegrees / plane.verticalRotationSpeed;
+			//if (plane.transform.position.y < SharedVariables.heightAtWhichToRotateToLandingMode) {
+			//If the time to hit the base (assuming no rotation for approximation) is equal to the time to rotate to vertical
+			if (timeToBase <= rotationTimeToBase) {
+				//start rotating to vertical
 				switchState(State.GoToBase5);
+			}
+			*/
+
+			timeToGround = (float) -curPosition.y / verticalSpeed;
+			rotationTimeToBase = (float) vertDegrees / plane.verticalRotationSpeed;
+			if (timeToGround <= rotationTimeToBase) {
+				switchState (State.GoToBase5);
 			}
 		});
 		
