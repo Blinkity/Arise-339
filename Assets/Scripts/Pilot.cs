@@ -39,7 +39,9 @@ public class Pilot : MonoBehaviour {
 	public float timeToBase;
 	public float timeToGround;
 	public float rotationTimeToBase;
-	
+
+	public float currentFPS;
+
 	// Use this for initialization
 	void Start () {
 		timeExisting = 0;
@@ -51,6 +53,8 @@ public class Pilot : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		currentFPS = 1.0f / Time.deltaTime;
+
 		timeInState += Time.deltaTime;
 		timeExisting += Time.deltaTime;
 
@@ -61,7 +65,7 @@ public class Pilot : MonoBehaviour {
 		verticalSpeed = (curPosition.y - prevPosition.y )  / Time.deltaTime;
 
 		distance = Vector3.Distance(plane.transform.position, girlCamera.transform.position); 
-		baseDist = Vector3.Distance(plane.transform.position, SharedVariables.landingLocation()); 
+		//baseDist = Vector3.Distance(plane.transform.position, SharedVariables.landingLocation()); 
 		//groundDist = Vector3.Distance(plane.transform.position, new Vector3(, 0, ); 
 		Quaternion planeRotation = plane.transform.rotation;
 		planeEulers = planeRotation.eulerAngles;
@@ -415,7 +419,8 @@ public class Pilot : MonoBehaviour {
 			Debug.Log("Entered base3");
 			resetControls();			
 			down();
-			
+
+			baseDist = Vector3.Distance(plane.transform.position, SharedVariables.landingLocation()); 
 			double vertRadians = System.Math.Asin(plane.transform.position.y/baseDist);
 			vertDegrees = vertRadians * 180.0/System.Math.PI;
 		});
@@ -437,19 +442,10 @@ public class Pilot : MonoBehaviour {
 		
 		updateFunctions.Add(State.GoToBase4, () => {
 			//check whether to start turning up
-			/*
-			timeToBase = (float) baseDist / plane.speed;
-			rotationTimeToBase = (float) vertDegrees / plane.verticalRotationSpeed;
-			//if (plane.transform.position.y < SharedVariables.heightAtWhichToRotateToLandingMode) {
-			//If the time to hit the base (assuming no rotation for approximation) is equal to the time to rotate to vertical
-			if (timeToBase <= rotationTimeToBase) {
-				//start rotating to vertical
-				switchState(State.GoToBase5);
-			}
-			*/
 
 			timeToGround = (float) -curPosition.y / verticalSpeed;
 			rotationTimeToBase = (float) vertDegrees / plane.verticalRotationSpeed;
+			//Extra 0.25 cuz it lands a little too low!
 			if (timeToGround <= rotationTimeToBase) {
 				switchState (State.GoToBase5);
 			}

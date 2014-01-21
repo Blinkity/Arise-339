@@ -141,7 +141,9 @@ public class QuirkyPlaneMover : MonoBehaviour {
 		queuedTimestamps.Enqueue(now); 
 		
 		transform.Translate(translation); 
-		
+		if (transform.position.y - transform.lossyScale.y < 0) {
+			transform.Translate(new Vector3(0,-(transform.position.y - transform.lossyScale.y),0), Space.World);
+		}
 		int delayToPerform = 0;
 		if (isDelayedResponse() == true) {
 			delayToPerform = delaySeconds; 

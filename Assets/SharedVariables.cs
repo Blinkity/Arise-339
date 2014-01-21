@@ -75,7 +75,7 @@ public class SharedVariables : MonoBehaviour {
 
 
 
-	public static double planeGenerationTime = 25; 
+	public static double planeGenerationTime = 5; 
 
 	public static Vector3 landingLocation() {
 			//return new Vector3(baseLocation.x, baseLocation.y + heightAtWhichToLanded, baseLocation.z); 
